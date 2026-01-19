@@ -1,84 +1,144 @@
 from tkinter import *
 import tkinter as tk
-import csv
+from tkinter.ttk import Combobox
+from tkinter import messagebox
+from datetime import datetime
 import os
+import csv
+
+
+
+file_path = os.path.isfile("data.csv")
+
+
+
+def save_details() :
+    date_field = date_input.get()
+    time_field = time_input.get()
+    type_field = type_box.get()
+    category_field = category_box.get()
+    amount_field = amount_input.get()
+    note_field = note_input.get()
+
+    with open("data.csv","a",newline="") as file :
+        writer = csv.writer(file)
+
+        if not file_path :
+            writer.writerow(["Date","Time","Type","Category","Amount","Note"])
+
+        writer.writerow([date_field,time_field,type_field,category_field,amount_field,note_field])
+    
+    date_input.delete(0,END)
+    time_input.delete(0,END)
+    type_box.delete(0,END)
+    category_box.delete(0,END)
+    amount_input.delete(0,END)
+    note_input.delete(0,END)
+
+    messagebox.showinfo(title="Added",message="Your Income/Expense has been successfully added")
+
+
+
+def clear() :
+    date_input.delete(0,END)
+    time_input.delete(0,END)
+    type_box.delete(0,END)
+    category_box.delete(0,END)
+    amount_input.delete(0,END)
+    note_input.delete(0,END)
+
+def show_transactions() :
+    pass
+
+def download_report():
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 window = tk.Tk()
 window.title("Expense Tracker")
 
 
-
-def add_details() :
-    date = date_input.get()
-    type_ = type_input.get()
-    category = category_input.get()
-    amount = amount_input.get()
-    note = note_input.get()
-
-
-    file_path = os.path.isfile("data.csv")
-
-    with open("data.csv","a",newline='') as file:
-        writer = csv.writer(file)
-        
-        if not file_path :
-            writer.writerow(["Date","Type","Category","Amount","Note"])
-
-        writer.writerow([date,type_,category,amount,note])
-
-    date_input.delete(0,tk.END)
-    type_input.delete(0,tk.END)
-    category_input.delete(0,tk.END)
-    amount_input.delete(0,tk.END)
-    note_input.delete(0,tk.END)
-
-
-def clear_details() :
-    date_input.delete(0,tk.END)
-    type_input.delete(0,tk.END)
-    category_input.delete(0,tk.END)
-    amount_input.delete(0,tk.END)
-    note_input.delete(0,tk.END)
-
-
-#labels
-date_label = tk.Label(window, text = "Date (YYYY-MM-DD): ")
+#Labels
+date_label = tk.Label(window,text="Date (DD-MM-YY): ")
+time_label = tk.Label(window,text="Time: ")
 type_label = tk.Label(window,text="Type: ")
 category_label = tk.Label(window,text="Category: ")
 amount_label = tk.Label(window,text="Amount: ")
 note_label = tk.Label(window,text="Note: ")
 
 
-#input fields
-date_input = tk.Entry(window)
-type_input = tk.Entry(window)
-category_input = tk.Entry(window)
-amount_input = tk.Entry(window)
-note_input = tk.Entry(window)
+
+#Buttons
+save_button = tk.Button(window,text="Save",command=save_details)
+clear_button = tk.Button(window,text="Clear",command=clear)
+show_transactions_button = tk.Button(window,text="Show Transactions")
+download_button = tk.Button(window,text="Download Report")
 
 
 
-#butons
-add_button = tk.Button(window,text="Add",command=add_details)
-clear_button = tk.Button(window,text="Clear",command=clear_details)
+#Inputs
+date_input = tk.Entry(width=50)
+time_input = tk.Entry(width=50)
+date_input.insert(0,datetime.now().strftime("%d/%m/%y"))
+time_input.insert(0,datetime.now().strftime("%H:%M"))
+amount_input = tk.Entry(width=50)
+note_input = tk.Entry(width=50)
+
+#Dropdown box for Type
+type_value = tk.StringVar()
+type_box = Combobox(window,textvariable=type_value,state="readonly",width=48)
+type_box["values"] = ["Income","Expense"]
+type_box.current(0)
+
+#Dropdown Box for Category
+category_value = tk.StringVar()
+category_box = Combobox(window,textvariable=category_value,state="readonly",width=48)
+expense_list = ["Food","Travel","Bills","Grocery","Education","Others"]
+income_list = ["Salary","Savings","Business","Others"]
+
+def update(event=None) :
+    if type_box.get() == "Expense" :
+        category_box["value"] = expense_list
+        category_box.current(0)
+    else :
+        category_box["values"] = income_list
+        category_box.current(0)
+
+type_box.bind("<<ComboboxSelected>>",update)
+type_box.current(0)
+update()
 
 
 
-#grid
+#Grid
 date_label.grid(row=0,column=0)
-type_label.grid(row=1,column=0)
-category_label.grid(row=2,column=0)
-amount_label.grid(row=3,column=0)
-note_label.grid(row=4,column=0)
 date_input.grid(row=0,column=1)
-type_input.grid(row=1,column=1)
-category_input.grid(row=2,column=1)
-amount_input.grid(row=3,column=1)
-note_input.grid(row=4,column=1) 
-add_button.grid(row=5,column=0)
-clear_button.grid(row=5,column=1)
-
-
+time_label.grid(row=1,column=0)
+time_input.grid(row=1,column=1)
+type_label.grid(row=2,column=0)
+type_box.grid(row=2,column=1)
+category_label.grid(row=3,column=0)
+category_box.grid(row=3,column=1)
+amount_label.grid(row=4,column=0)
+amount_input.grid(row=4,column=1)
+note_label.grid(row=5,column=0)
+note_input.grid(row=5,column=1)
+save_button.grid(row=6,column=0)
+clear_button.grid(row=6,column=1)
+show_transactions_button.grid(row=0,column=2)
+download_button.grid(row=1,column=2)
 
 
 
