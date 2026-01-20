@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter.ttk import Combobox
 from tkinter import messagebox
 from datetime import datetime
+from tkinter import ttk
 import os
 import csv
 
@@ -30,8 +31,6 @@ def save_details() :
     
     date_input.delete(0,END)
     time_input.delete(0,END)
-    type_box.delete(0,END)
-    category_box.delete(0,END)
     amount_input.delete(0,END)
     note_input.delete(0,END)
 
@@ -42,13 +41,32 @@ def save_details() :
 def clear() :
     date_input.delete(0,END)
     time_input.delete(0,END)
-    type_box.delete(0,END)
-    category_box.delete(0,END)
     amount_input.delete(0,END)
     note_input.delete(0,END)
 
 def show_transactions() :
-    pass
+    win = tk.Toplevel(window)
+    win.title("Transactions")
+    win.geometry("800x400")
+
+    tree = ttk.Treeview(win)
+    tree.pack(fill="both",expand=True)
+
+    try :
+        with open("data.csv","r") as file :
+            csv_reader = csv.reader(file)
+            headers = next(csv_reader)
+
+            tree['columns'] = headers
+
+            for h in headers :
+                tree.heading(h,text=h)
+                tree.column(h,width=100)
+
+            for row in csv_reader :
+                tree.insert("","end",values=row)
+    except FileNotFoundError :
+        messagebox.showwarning("No data")
 
 def download_report():
     pass
@@ -60,15 +78,8 @@ def download_report():
 
 
 
-
-
-
-
-
-
 window = tk.Tk()
 window.title("Expense Tracker")
-
 
 #Labels
 date_label = tk.Label(window,text="Date (DD-MM-YY): ")
@@ -83,7 +94,7 @@ note_label = tk.Label(window,text="Note: ")
 #Buttons
 save_button = tk.Button(window,text="Save",command=save_details)
 clear_button = tk.Button(window,text="Clear",command=clear)
-show_transactions_button = tk.Button(window,text="Show Transactions")
+show_transactions_button = tk.Button(window,text="Show Transactions",command=show_transactions)
 download_button = tk.Button(window,text="Download Report")
 
 
@@ -110,7 +121,7 @@ income_list = ["Salary","Savings","Business","Others"]
 
 def update(event=None) :
     if type_box.get() == "Expense" :
-        category_box["value"] = expense_list
+        category_box["values"] = expense_list
         category_box.current(0)
     else :
         category_box["values"] = income_list
