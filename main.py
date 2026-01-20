@@ -27,55 +27,49 @@ def save_details() :
         if not file_path :
             writer.writerow(["Date","Time","Type","Category","Amount","Note"])
 
-        writer.writerow([date_field,time_field,type_field,category_field,amount_field,note_field])
-    
-    date_input.delete(0,END)
-    time_input.delete(0,END)
-    amount_input.delete(0,END)
-    note_input.delete(0,END)
+        if amount_field.isdigit() or amount_field.isdecimal :
+            writer.writerow([date_field,time_field,type_field,category_field,amount_field,note_field])
+            amount_input.delete(0,END)
+            note_input.delete(0,END)
 
-    messagebox.showinfo(title="Added",message="Your Income/Expense has been successfully added")
+            messagebox.showinfo(title="Added",message="Your Income/Expense has been successfully added")
+        
+        else :
+            messagebox.showwarning(title="Warning",message="Amount entered is invalid")
 
 
 
 def clear() :
-    date_input.delete(0,END)
-    time_input.delete(0,END)
     amount_input.delete(0,END)
     note_input.delete(0,END)
 
 def show_transactions() :
     win = tk.Toplevel(window)
     win.title("Transactions")
-    win.geometry("800x400")
+    win.geometry("700x200")
 
     tree = ttk.Treeview(win)
-    tree.pack(fill="both",expand=True)
+    tree.pack(fill="both")
 
     try :
         with open("data.csv","r") as file :
             csv_reader = csv.reader(file)
-            headers = next(csv_reader)
+            header = next(csv_reader)
 
-            tree['columns'] = headers
+            tree['columns'] = header
 
-            for h in headers :
-                tree.heading(h,text=h)
-                tree.column(h,width=100)
+            for headings in header :
+                tree.heading(headings,text=headings)
+                tree.column(headings,width=80)
 
-            for row in csv_reader :
-                tree.insert("","end",values=row)
-    except FileNotFoundError :
-        messagebox.showwarning("No data")
+            for value in csv_reader :
+                tree.insert("",'end',values=value)
+    except :
+        messagebox.showerror(title="Warning",message="No transaction found!!")
+
 
 def download_report():
     pass
-
-
-
-
-
-
 
 
 window = tk.Tk()
